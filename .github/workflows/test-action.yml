@@ -1,0 +1,17 @@
+name: Test Action
+
+on: [push]
+
+jobs:
+  start-iis:
+   runs-on: [windows-2019]
+   steps:
+    - name: IIS Test
+      id: iis-test
+      uses: im-open/iis-service-action@v0
+      with:
+        server: 'mine'
+        service-account-id: 'service_id'
+        service-account-password: 's#fpf40'
+        app-pool-name: 'deep-end'
+        action: 'start'

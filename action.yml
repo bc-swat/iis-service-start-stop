@@ -1,22 +1,41 @@
-name: 'Composite Run Steps Action Template'
+name: 'IIS Service Action'
 
-description: 'Add description here'
+description: 'All'
 
 inputs:
-  input-1:
-    description: 'Add a description here'
+  server:
+    description: 'The name of the target server'
+    required: true
+  service-account-id:
+    description: 'The service account name'
+    required: true
+  service-account-password:
+    description: 'The service account password'
+    required: true
+  app-pool-name:
+    description: 'IIS app pool name'
+    required: true
+  action:
+    description: 'Specify start or stop as the action to perform'
+    default: 'start'
     required: true
 
-outputs:
-  output-1:
-    description: 'Add description here'
-    value: '${{ steps.step_1.outputs.world }}'
+# outputs:
+#   success:
+#     description: 'IIS Action result'
+#     value: '${{ steps.step_1.outputs.world }}'
 
 runs:
   using: 'composite'
   steps:
-    - name: Step 1
-      id: step_1
-      shell: bash
+    - name: Load Modules
+      id: load-modules
+      shell: powershell
+      run: ${{ github.action_path }}/modules.ps1
+    - name: Action
+      id: action
+      shell: powershell
       run: |
-        echo "::set-output name=hello::world"
+        ${{ github.action_path }}/${{ inputs.action }}.ps1 `
+          -server ${{ inputs.server }} `
+          -app_pool_name ${{ inputs.app-pool-name }}
