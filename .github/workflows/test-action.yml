@@ -4,14 +4,14 @@ on: [push]
 
 jobs:
   start-iis:
-   runs-on: [windows-2019]
+   runs-on: [self-hosted, windows]
    steps:
     - name: IIS Test
       id: iis-test
       uses: im-open/iis-service-action@v0
       with:
-        server: 'mine'
-        service-account-id: 'service_id'
-        service-account-password: 's#fpf40'
-        app-pool-name: 'deep-end'
+        server: '10.207.164.190'
+        service-account-id: ${{secrets.admin_user}}
+        service-account-password: ${{secrets.admin_password}}
+        app-pool-name: 'action-test-pool'
         action: 'start'
