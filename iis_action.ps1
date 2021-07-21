@@ -13,8 +13,20 @@ Param(
     [string]$cert_path
 )
 
-$display_action = ($action -eq "start") ? "Start" : ($action -eq "stop") ? "Stop" : "Restart"
-$display_action_past_tense = ($action -eq "start") ? "started" : ($action -eq "stop") ? "stopped" : "restarted"
+$display_action = "Restart"
+if ($action -eq "start") {
+    $display_action = "Start"
+}
+elseif ($action -eq "stop") {
+    $display_action = "Stop"
+}
+$display_action_past_tense = "restarted"
+if ($action -eq "start") {
+    $display_action_past_tense = "started"
+}
+elseif ($action -eq "stop") {
+    $display_action_past_tense = "stopped"
+}
 
 Write-Host "$display_action IIS"
 Write-Output "Server: $server - App Pool: $app_pool_name"

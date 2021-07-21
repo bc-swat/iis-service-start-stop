@@ -13,7 +13,7 @@ jobs:
       id: iis-start
       uses: im-open/iis-service-action@iis-action-creation
       with:
-        server: '10.207.164.190'
+        server: 'gar-d-wn000008.extendhealth.com'
         service-account-id: ${{secrets.admin_user}}
         service-account-password: ${{secrets.admin_password}}
         app-pool-name: 'action-test-pool'
@@ -23,7 +23,7 @@ jobs:
       id: iis-restart
       uses: im-open/iis-service-action@iis-action-creation
       with:
-        server: '10.207.164.190'
+        server: 'gar-d-wn000008.extendhealth.com'
         service-account-id: ${{secrets.admin_user}}
         service-account-password: ${{secrets.admin_password}}
         app-pool-name: 'action-test-pool'
@@ -33,7 +33,7 @@ jobs:
       id: iis-stop
       uses: im-open/iis-service-action@iis-action-creation
       with:
-        server: '10.207.164.190'
+        server: 'gar-d-wn000008.extendhealth.com'
         service-account-id: ${{secrets.admin_user}}
         service-account-password: ${{secrets.admin_password}}
         app-pool-name: 'action-test-pool'

@@ -29,13 +29,13 @@ runs:
     - name: Valid Action Check
       id: validate
       shell: powershell
-      run: validate-input.ps1 -action ${{ inputs.action }}
+      run: ${{ github.action_path }}/validate-input.ps1 -action ${{ inputs.action }}
     - name: Action
       id: action
       shell: powershell
       run: |
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
-        iis_action.ps1 `
+        ${{ github.action_path }}/iis_action.ps1 `
           -server ${{ inputs.server }} `
           -app_pool_name ${{ inputs.app-pool-name }} `
           -user_id ${{ inputs.service-account-id }} `
