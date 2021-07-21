@@ -1,12 +1,20 @@
-# composite-run-steps-action-template
+# IIS Service Action
 
 This template can be used to quickly start a new custom composite-run-steps action repository.  Click the `Use this template` button at the top to get started.
 
-## TODOs
+## Index
+- [TODOs](#todos)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
+- [Pre-requisites](#pre-requisites)
+- [Code of Conduct](#code-of-conduct)
+- [License](#license)
+
+### TODOs
 - Readme
   - [ ] Update the Inputs section with the correct action inputs
   - [ ] Update the Outputs section with the correct action outputs
-  - [ ] Update the Example section with the correct usage   
+  - [ ] Update the Example section with the correct usage
 - action.yml
   - [ ] Fill in the correct name, description, inputs and outputs and implement steps
 - CODEOWNERS
@@ -38,19 +46,29 @@ This template can be used to quickly start a new custom composite-run-steps acti
     | pagerduty       | For actions related to PagerDuty         |
     | test            | For actions related to testing           |
     | tf              | For actions related to Terraform         |
-  - [ ] Add any additional topics for an action if they apply    
-    
+  - [ ] Add any additional topics for an action if they apply
 
-## Inputs
-| Parameter | Is Required | Description           |
-| --------- | ----------- | --------------------- |
-| `input-1` | true        | Description goes here |
-| `input-2` | false       | Description goes here |
 
-## Outputs
+### Inputs
+| Parameter                  | Is Required | Description                                              |
+| -------------------------- | ----------- | -------------------------------------------------------- |
+| `server`                   | true        | The name of the target server                            |
+| `service-account-id`       | true        | The service account name                                 |
+| `service-account-password` | true        | The service account password                             |
+| `app-pool-name`            | true        | IIS app pool name                                        |
+| `action`                   | true        | Specify start, stop, or restart as the action to perform |
+
+
+### Outputs
 | Output     | Description           |
 | ---------- | --------------------- |
 | `output-1` | Description goes here |
+
+### Pre-requisites
+
+- Allow NSG WinRm Inbound Traffic (HTTPS port 5986) from GitHub Actions Runner VNet/Subnet
+- [PowerShell Remoting over HTTPS with a self-signed SSL certificate]
+- [Use a session option]
 
 ## Example
 
@@ -70,10 +88,15 @@ jobs:
 ```
 
 
-## Code of Conduct
+### Code of Conduct
 
 This project has adopted the [im-open's Code of Conduct](https://github.com/im-open/.github/blob/master/CODE_OF_CONDUCT.md).
 
-## License
+### License
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
+
+
+<!-- Links -->
+[PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
+[Use a session option]: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command?view=powershell-7.1#example-15--use-a-session-option
