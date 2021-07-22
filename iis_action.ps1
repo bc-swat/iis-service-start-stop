@@ -29,14 +29,15 @@ elseif ($action -eq "stop") {
     $display_action_past_tense = "stopped"
 }
 
-Write-Host "$display_action IIS"
+Write-Output "$display_action IIS"
 Write-Output "Server: $server - App Pool: $app_pool_name"
 
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
-Write-Information "Importing remote server cert..."
-Start-Process "powershell" -Verb RunAs -Wait "Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\Root'"
+Write-Output "Importing remote server cert..."
+Start-Process powershell -Credential $credential -Wait -Verb runas -ArgumentList "-Command { Import-Certificate $cert_path -CertStoreLocation `"Cert:\LocalMachine\Root`"}"
+# Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root" -Credential ($credential)
 
 $script = {
     if (-not (Get-InstalledModule -Name "WebAdministration" -ErrorAction SilentlyContinue)) {
