@@ -1,5 +1,3 @@
-#Requires -RunAsAdministrator
-
 Param(
     [parameter(Mandatory = $true)]
     [string]$server,
@@ -10,6 +8,7 @@ Param(
     [parameter(Mandatory = $true)]
     [SecureString]$password,
     [parameter(Mandatory = $true)]
+    [ValidateSet('start', 'stop', 'restart')]
     [string]$action,
     [parameter(Mandatory = $true)]
     [string]$cert_path

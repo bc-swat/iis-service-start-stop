@@ -26,10 +26,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Valid Action Check
-      id: validate
-      shell: powershell
-      run: ${{ github.action_path }}/validate-input.ps1 -action ${{ inputs.action }}
     - name: Action
       id: action
       shell: powershell
