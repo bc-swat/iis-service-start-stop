@@ -1,3 +1,5 @@
+#Requires -RunAsAdministrator
+
 Param(
     [parameter(Mandatory = $true)]
     [string]$server,
