@@ -35,7 +35,7 @@ $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
 Write-Information "Importing remote server cert..."
-Import-Certificate -Filepath $cert_path -CertStoreLocation "cert:\CurrentUser\Root"
+Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 $script = {
     if (-not (Get-InstalledModule -Name "WebAdministration" -ErrorAction SilentlyContinue)) {
