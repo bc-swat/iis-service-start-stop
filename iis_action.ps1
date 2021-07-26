@@ -36,8 +36,8 @@ $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
 Write-Output "Importing remote server cert..."
-Start-Process powershell -Credential $credential -Wait -Verb runas -ArgumentList "-Command { Import-Certificate $cert_path -CertStoreLocation `"Cert:\LocalMachine\Root`"}"
-# Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root" -Credential ($credential)
+# Start-Process powershell -Credential $credential -Wait -Verb runas -ArgumentList "-Command { Import-Certificate $cert_path -CertStoreLocation `"Cert:\LocalMachine\Root`"}"
+Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 $script = {
     if (-not (Get-InstalledModule -Name "WebAdministration" -ErrorAction SilentlyContinue)) {
