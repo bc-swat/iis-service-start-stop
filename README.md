@@ -1,53 +1,12 @@
 # IIS Service Action
 
-This template can be used to quickly start a new custom composite-run-steps action repository.  Click the `Use this template` button at the top to get started.
+A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 
 ## Index
-- [TODOs](#todos)
 - [Inputs](#inputs)
-- [Outputs](#outputs)
 - [Pre-requisites](#pre-requisites)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
-
-### TODOs
-- Readme
-  - [ ] Update the Inputs section with the correct action inputs
-  - [ ] Update the Outputs section with the correct action outputs
-  - [ ] Update the Example section with the correct usage
-- action.yml
-  - [ ] Fill in the correct name, description, inputs and outputs and implement steps
-- CODEOWNERS
-  - [ ] Update as appropriate
-- Repository Settings
-  - [ ] On the *Options* tab check the box to *Automatically delete head branches*
-  - [ ] On the *Options* tab update the repository's visibility
-  - [ ] On the *Branches* tab add a branch protection rule
-    - [ ] Check *Require pull request reviews before merging*
-    - [ ] Check *Dismiss stale pull request approvals when new commits are pushed*
-    - [ ] Check *Require review from Code Owners*
-    - [ ] Check *Include Administrators*
-  - [ ] On the *Manage Access* tab add the appropriate groups
-- About Section (accessed on the main page of the repo, click the gear icon to edit)
-  - [ ] The repo should have a short description of what it is for
-  - [ ] Add one of the following topic tags:
-    | Topic Tag       | Usage                                    |
-    | --------------- | ---------------------------------------- |
-    | az              | For actions related to Azure             |
-    | code            | For actions related to building code     |
-    | certs           | For actions related to certificates      |
-    | db              | For actions related to databases         |
-    | git             | For actions related to Git               |
-    | iis             | For actions related to IIS               |
-    | microsoft-teams | For actions related to Microsoft Teams   |
-    | svc             | For actions related to Windows Services  |
-    | jira            | For actions related to Jira              |
-    | meta            | For actions related to running workflows |
-    | pagerduty       | For actions related to PagerDuty         |
-    | test            | For actions related to testing           |
-    | tf              | For actions related to Terraform         |
-  - [ ] Add any additional topics for an action if they apply
-
 
 ### Inputs
 | Parameter                  | Is Required | Description                                              |
@@ -57,34 +16,73 @@ This template can be used to quickly start a new custom composite-run-steps acti
 | `service-account-password` | true        | The service account password                             |
 | `app-pool-name`            | true        | IIS app pool name                                        |
 | `action`                   | true        | Specify start, stop, or restart as the action to perform |
-
-
-### Outputs
-| Output     | Description           |
-| ---------- | --------------------- |
-| `output-1` | Description goes here |
+| `server-public-key`        | true        | Path to remote server public ssl key                     |
 
 ### Pre-requisites
 
 - Allow NSG WinRm Inbound Traffic (HTTPS port 5986) from GitHub Actions Runner VNet/Subnet
-- [PowerShell Remoting over HTTPS with a self-signed SSL certificate]
-- [Use a session option]
+- Prep the remote IIS server to accept WinRM IIS management calls.  Detailed instructions and explanations can be found in this article: [PowerShell Remoting over HTTPS with a self-signed SSL certificate]
+
+  This is a sample script that would be run on the target IIS server:
+
+  ```powershell
+  $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
+
+  Export-Certificate -Cert $Cert -FilePath C:\temp\<<cert-name>>
+
+  Enable-PSRemoting -SkipNetworkProfileCheck -Force
+
+  # Check for HTTP listeners
+  dir wsman:\localhost\listener
+
+  # If HTTP Listeners exist, remove them
+  Get-ChildItem WSMan:\Localhost\listener | Where -Property Keys -eq "Transport=HTTP" | Remove-Item -Recurse
+
+  # If HTTPs Listeners don't exist, add one
+  New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * -CertificateThumbPrint $Cert.Thumbprint –Force
+
+  # This allows old WinRm hosts to use port 443
+  Set-Item WSMan:\localhost\Service\EnableCompatibilityHttpsListener -Value true
+
+  # Make sure an HTTPs inbound rule is allowed
+  New-NetFirewallRule -DisplayName "Windows Remote Management (HTTPS-In)" -Name "Windows Remote Management (HTTPS-In)" -Profile Any -LocalPort 5986 -Protocol TCP
+
+  # For security reasons, you might want to disable the firewall rule for HTTP that *Enable-PSRemoting* added:
+  Disable-NetFirewallRule -DisplayName "Windows Remote Management (HTTP-In)"
+  ```
+
+  - `ip-address` or `fqdn-host-name` can be used for the `DnsName` property in the certificate creation. It should be the name that the actions runner will use to call to the IIS server.
+  - `cert-name` can be any name.  This file will used to secure the traffic between the actions runner and the IIS server
 
 ## Example
 
 ```yml
-# TODO: Fill in the correct usage
-jobs:
-  job1:
-    runs-on: [self-hosted]
-    steps:
-      - uses: actions/checkout@v2
+...
 
-      - name: Add the action here
-        uses: im-open/this-repo@v1.0.0
-        with:
-          input-1: 'abc'
-          input-2: '123
+jobs:
+  stop-iis:
+   runs-on: [self-hosted, windows-2019]
+   env:
+      server: 'iis-server.extendhealth.com'
+      pool-name: 'website-pool'
+      cert-path: './server-cert'
+
+   steps:
+    - name: Checkout
+      id: Checkout
+      uses: actions/checkout@v2
+    - name: IIS stop
+      id: iis-stop
+      uses: 'im-open/iis-service-action@v1.0.0'
+      with:
+        server: ${{ env.server }}
+        service-account-id: ${{secrets.iis_admin_user}}
+        service-account-password: ${{secrets.iis_admin_password}}
+        app-pool-name: ${{ env.pool-name }}
+        action: 'stop'
+        server-public-key: ${{ env.cert-path }}
+
+  ...
 ```
 
 
@@ -99,4 +97,3 @@ Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license]
 
 <!-- Links -->
 [PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
-[Use a session option]: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command?view=powershell-7.1#example-15--use-a-session-option

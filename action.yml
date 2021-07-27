@@ -1,6 +1,6 @@
 name: 'IIS Service Action'
 
-description: 'All'
+description: 'A GitHub action that can start, stop, or restart an On-Prem IIS server.'
 
 inputs:
   server:
