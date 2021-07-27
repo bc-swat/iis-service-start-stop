@@ -40,11 +40,9 @@ Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
 $script = {
-    if (-not (Get-InstalledModule -Name "WebAdministration" -ErrorAction SilentlyContinue)) {
-        Write-Output "WebAdministration module not detected. Installing..."
-        Install-Module -Name WebAdministration -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
-        Write-Output "Finished Installing WebAdministration module."
-    }
+    # Relies on WebAdministration Module being installed on the remote server
+    # This should be pre-installed on Windows 2012 R2 and later
+    # https://docs.microsoft.com/en-us/powershell/module/?term=webadministration
 
     if ($Using:action -eq "stop" -or $Using:action -eq "restart") {
         Stop-WebAppPool -Name $Using:app_pool_name
