@@ -2,13 +2,16 @@
 
 A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 
-## Index
+## Index <!-- omit in toc -->
+
 - [Inputs](#inputs)
-- [Pre-requisites](#pre-requisites)
+- [Prerequisites](#prerequisites)
+- [Example](#example)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
-### Inputs
+## Inputs
+
 | Parameter                  | Is Required | Description                                              |
 | -------------------------- | ----------- | -------------------------------------------------------- |
 | `server`                   | true        | The name of the target server                            |
@@ -18,12 +21,11 @@ A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 | `action`                   | true        | Specify start, stop, or restart as the action to perform |
 | `server-public-key`        | true        | Path to remote server public ssl key                     |
 
-### Pre-requisites
+## Prerequisites
 
-- Allow NSG WinRm Inbound Traffic (HTTPS port 5986) from GitHub Actions Runner VNet/Subnet
-- Prep the remote IIS server to accept WinRM IIS management calls.  Detailed instructions and explanations can be found in this article: [PowerShell Remoting over HTTPS with a self-signed SSL certificate]
+Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that IIS service commands from the runners  can be received.
 
-  This is a sample script that would be run on the target IIS server:
+Prep the remote IIS server to accept WinRM IIS management calls.  In general the IIS server needs to have a Web Services for Management, [WSMan], listener that looks for incoming Windows Remote Management, [WinRM], calls. Firewall exceptions need to be added for the secure WinRM TCP ports, and non-secure firewall rules should be disabled. Here is an example script that would be run on the IIS server:
 
   ```powershell
   $Cert = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName <<ip-address|fqdn-host-name>>
@@ -61,23 +63,21 @@ A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 
 jobs:
   stop-iis:
-   runs-on: [self-hosted, windows-2019]
+   runs-on: [windows-2019]
    env:
-      server: 'iis-server.extendhealth.com'
+      server: 'iis-server.domain.com'
       pool-name: 'website-pool'
       cert-path: './server-cert'
 
    steps:
     - name: Checkout
-      id: Checkout
       uses: actions/checkout@v2
     - name: IIS stop
-      id: iis-stop
       uses: 'im-open/iis-service-action@v1.0.0'
       with:
         server: ${{ env.server }}
-        service-account-id: ${{secrets.iis_admin_user}}
-        service-account-password: ${{secrets.iis_admin_password}}
+        service-account-id: ${{ secrets.iis_admin_user }}
+        service-account-password: ${{ secrets.iis_admin_password }}
         app-pool-name: ${{ env.pool-name }}
         action: 'stop'
         server-public-key: ${{ env.cert-path }}
@@ -85,15 +85,15 @@ jobs:
   ...
 ```
 
-
-### Code of Conduct
+## Code of Conduct
 
 This project has adopted the [im-open's Code of Conduct](https://github.com/im-open/.github/blob/master/CODE_OF_CONDUCT.md).
 
-### License
+## License
 
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
 
-
 <!-- Links -->
 [PowerShell Remoting over HTTPS with a self-signed SSL certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
+[WSMan]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
+[WinRM]: https://docs.microsoft.com/en-us/windows/win32/winrm/about-windows-remote-management
