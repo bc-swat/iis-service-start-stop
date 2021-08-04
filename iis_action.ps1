@@ -91,7 +91,7 @@ elseif ('create-app-pool' -eq $action) {
 }
 elseif ('create-site' -eq $action) {
     if (!$web_site_name -or !$web_site_path -or !$web_site_host_header) {
-        "Create web site requires site name, host name and path"
+        "Create web site requires site name, host header and path"
         exit 1
     }
 
@@ -124,8 +124,6 @@ elseif ('create-site' -eq $action) {
         }
         else {
             Write-Host "Creating IIS site $Using:web_site_name"
-            Write-Host "Host Header $Using:website_host_header"
-
             New-WebSite -Name $Using:web_site_name `
                 -HostHeader $Using:web_site_host_header `
                 -Ssl -Port 443 `
