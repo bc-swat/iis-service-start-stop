@@ -56,8 +56,8 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-$app_pool_path = "IIS:\AppPools\$Using:app_pool_name"
-$site_path = "IIS:\Sites\$Using:web_site_name"
+$app_pool_path = "IIS:\AppPools\$app_pool_name"
+$site_path = "IIS:\Sites\$web_site_name"
 
 if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
     $script = {
@@ -76,17 +76,19 @@ if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
     }
 }
 elseif ('create-app-pool' -eq $action) {
-    # create app pool if it doesn't exist
-    if (Test-Path -Path $app_pool_path) {
-        Write-Output "The App Pool $Using:app_pool_name already exists"
-    }
-    else {
-        Write-Output "Creating app pool $Using:app_pool_name"
-        $app_pool = New-WebAppPool -Name $Using:app_pool_name
-        $app_pool.autoStart = $true
-        $app_pool.managedPipelineMode = "Integrated"
-        $app_pool | Set-Item
-        Write-Output "App pool $Using:app_pool_name has been created"
+    $script = {
+        # create app pool if it doesn't exist
+        if (Test-Path -Path $Using:app_pool_path) {
+            Write-Output "The App Pool $Using:app_pool_name already exists"
+        }
+        else {
+            Write-Output "Creating app pool $Using:app_pool_name"
+            $app_pool = New-WebAppPool -Name $Using:app_pool_name
+            $app_pool.autoStart = $true
+            $app_pool.managedPipelineMode = "Integrated"
+            $app_pool | Set-Item
+            Write-Output "App pool $Using:app_pool_name has been created"
+        }
     }
 }
 elseif ('create-site' -eq $action) {
@@ -97,7 +99,7 @@ elseif ('create-site' -eq $action) {
 
     $script = {
         # create app pool if it doesn't exist
-        if (Test-Path -Path $app_pool_path) {
+        if (Test-Path -Path $Using:app_pool_path) {
             Write-Output "The App Pool $Using:app_pool_name already exists"
         }
         else {
