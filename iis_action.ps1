@@ -4,6 +4,8 @@ Param(
     [parameter(Mandatory = $false)]
     [string]$web_site_name,
     [parameter(Mandatory = $false)]
+    [string]$web_site_host_header,
+    [parameter(Mandatory = $false)]
     [string]$web_site_path,
     [parameter(Mandatory = $true)]
     [string]$app_pool_name,
@@ -121,8 +123,10 @@ elseif ('create-site' -eq $action) {
             Write-Output "The site $Using:web_site_name already exists"
         }
         else {
+            Write-Host "Creating IIS site $Using:web_site_name"
             New-WebSite -Name $Using:web_site_name `
-                -Port 443 `
+                -HostHeader $Using:web_site_host_header `
+                -Ssl -Port 443 `
                 -PhysicalPath $Using:web_site_path `
                 -ApplicationPool $Using:app_pool_name
         }
