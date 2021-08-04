@@ -46,7 +46,6 @@ switch ($action) {
     }
 }
 
-
 Write-Output "$display_action IIS"
 Write-Output "Server: $server - App Pool: $app_pool_name"
 
@@ -55,8 +54,6 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
-
-$site_path = "IIS:\Sites\$web_site_name"
 
 if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
     $script = {
@@ -120,8 +117,12 @@ elseif ('create-site' -eq $action) {
         }
 
         # create the site if it doesn't exist
-        if (!(Test-Path -Path $site_path)) {
-            Create-WebSite -Name $Using:web_site_name `
+        if (Get-IISSite -Name $Using:web_site_name) {
+            Write-Output "The site $Using:web_site_name already exists"
+        }
+        else {
+            New-WebSite -Name $Using:web_site_name `
+                -Port 443 `
                 -PhysicalPath $Using:web_site_path `
                 -ApplicationPool $Using:app_pool_name
         }
