@@ -1,9 +1,9 @@
 Param(
     [parameter(Mandatory = $true)]
     [string]$server,
-    [parameter(Mandatory = $true)]
+    [parameter(Mandatory = $false)]
     [string]$web_site_name,
-    [parameter(Mandatory = $true)]
+    [parameter(Mandatory = $false)]
     [string]$web_site_path,
     [parameter(Mandatory = $true)]
     [string]$app_pool_name,
@@ -76,21 +76,25 @@ if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
     }
 }
 elseif ('create-app-pool' -eq $action) {
-    $script = {
-        if (Test-Path -Path $app_pool_path) {
-            Write-Output "The App Pool $Using:app_pool_name already exists"
-        }
-        else {
-            Write-Output "Creating app pool $Using:app_pool_name"
-            $app_pool = New-WebAppPool -Name $Using:app_pool_name
-            $app_pool.autoStart = $true
-            $app_pool.managedPipelineMode = "Integrated"
-            $app_pool | Set-Item
-            Write-Output "App pool $Using:app_pool_name has been created"
-        }
+    # create app pool if it doesn't exist
+    if (Test-Path -Path $app_pool_path) {
+        Write-Output "The App Pool $Using:app_pool_name already exists"
+    }
+    else {
+        Write-Output "Creating app pool $Using:app_pool_name"
+        $app_pool = New-WebAppPool -Name $Using:app_pool_name
+        $app_pool.autoStart = $true
+        $app_pool.managedPipelineMode = "Integrated"
+        $app_pool | Set-Item
+        Write-Output "App pool $Using:app_pool_name has been created"
     }
 }
 elseif ('create-site' -eq $action) {
+    if (!$web_site_name -or !$web_site_path) {
+        "Create web site requires site name and path"
+        exit 1
+    }
+
     $script = {
         # create app pool if it doesn't exist
         if (Test-Path -Path $app_pool_path) {
@@ -118,7 +122,7 @@ elseif ('create-site' -eq $action) {
         if (!(Test-Path -Path $site_path)) {
             Create-WebSite -Name $Using:web_site_name `
                 -PhysicalPath $Using:web_site_path `
-                -ApplicationPool $Using:app_pool_name.
+                -ApplicationPool $Using:app_pool_name
         }
     }
 }
