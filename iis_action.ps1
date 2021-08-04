@@ -77,6 +77,8 @@ if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
 }
 elseif ('create-app-pool' -eq $action) {
     $script = {
+        Write-Output "App Pool Test: $Using:app_pool_path"
+
         # create app pool if it doesn't exist
         if (Test-Path -Path $Using:app_pool_path) {
             Write-Output "The App Pool $Using:app_pool_name already exists"
