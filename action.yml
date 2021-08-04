@@ -41,7 +41,6 @@ runs:
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
         ${{ github.action_path }}/iis_action.ps1 `
           -server ${{ inputs.server }} `
-          -web_site_name ${{ inputs.web-site-name }} `
           -web_site_path ${{ inputs.web-site-path }} `
           -app_pool_name ${{ inputs.app-pool-name }} `
           -user_id ${{ inputs.service-account-id }} `
