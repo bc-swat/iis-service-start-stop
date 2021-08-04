@@ -36,12 +36,12 @@ switch ($action) {
     }
     "create-site" {
         $display_action = 'Create Site'
-        $display_action_past_tense = 'site created'
+        $display_action_past_tense = 'site processed'
         break
     }
     "create-app-pool" {
         $display_action = 'Create App Pool'
-        $display_action_past_tense = 'app pool created'
+        $display_action_past_tense = 'app pool processed'
         break
     }
 }
@@ -56,7 +56,6 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-$app_pool_path = "IIS:\AppPools\$app_pool_name"
 $site_path = "IIS:\Sites\$web_site_name"
 
 if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
@@ -77,10 +76,8 @@ if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
 }
 elseif ('create-app-pool' -eq $action) {
     $script = {
-        Write-Output "App Pool Test: $Using:app_pool_path"
-
         # create app pool if it doesn't exist
-        if (Test-Path -Path $Using:app_pool_path) {
+        if (Get-IISAppPool -Name $Using:app_pool_name) {
             Write-Output "The App Pool $Using:app_pool_name already exists"
         }
         else {
@@ -101,7 +98,7 @@ elseif ('create-site' -eq $action) {
 
     $script = {
         # create app pool if it doesn't exist
-        if (Test-Path -Path $Using:app_pool_path) {
+        if (Get-IISAppPool -Name $Using:app_pool_name) {
             Write-Output "The App Pool $Using:app_pool_name already exists"
         }
         else {
