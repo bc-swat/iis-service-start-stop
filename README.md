@@ -12,14 +12,17 @@ A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                              |
-| -------------------------- | ----------- | -------------------------------------------------------- |
-| `server`                   | true        | The name of the target server                            |
-| `service-account-id`       | true        | The service account name                                 |
-| `service-account-password` | true        | The service account password                             |
-| `app-pool-name`            | true        | IIS app pool name                                        |
-| `action`                   | true        | Specify start, stop, or restart as the action to perform |
-| `server-public-key`        | true        | Path to remote server public ssl key                     |
+| Parameter                  | Is Required | Description                                                                            |
+| -------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| `server`                   | true        | The name of the target server                                                          |
+| `service-account-id`       | true        | The service account name                                                               |
+| `service-account-password` | true        | The service account password                                                           |
+| `web-site-name`            | false       | The name of the web site                                                               |
+| `web-site-host-header`     | false       | The host-header the web site should respond to                                         |
+| `web-site-path`            | false       | The local directory location of the web site, i.e., "c:\inetpub\webapp"                |
+| `app-pool-name`            | true        | IIS app pool name                                                                      |
+| `action`                   | true        | Specify start, stop, restart, create-site, or create-app-pool as the action to perform |
+| `server-public-key`        | true        | Path to remote server public ssl key                                                   |
 
 ## Prerequisites
 

@@ -21,7 +21,7 @@ inputs:
     default: ''
     required: false
   web-site-path:
-    description: 'The local directory of the web site, i.e., "c:\inetpub\webapp"'
+    description: 'The local directory location of the web site, i.e., "c:\inetpub\webapp"'
     default: ''
     required: false
   app-pool-name:
