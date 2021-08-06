@@ -14,41 +14,33 @@ Param(
     [parameter(Mandatory = $true)]
     [SecureString]$password,
     [parameter(Mandatory = $true)]
-    [ValidateSet('start', 'stop', 'restart', 'create-site', 'create-app-pool')]
+    [ValidateSet('app-pool-start', 'app-pool-stop', 'app-pool-restart', 'app-pool-create', 'app-pool-status', 'site-create')]
     [string]$action,
     [parameter(Mandatory = $true)]
     [string]$cert_path
 )
 
-switch ($action) {
-    "start" {
-        $display_action = 'Start'
-        $display_action_past_tense = 'started'
-        break
+switch -Regex ($action) {
+    "app-pool*" {
+        $action_prefix = 'app\-pool\-(?<verb>.+)'
+        $display_action = 'App Pool'
+        break;
     }
-    "stop" {
-        $display_action = 'Stop'
-        $display_action_past_tense = 'stopped'
-        break
-    }
-    "restart" {
-        $display_action = 'Restart'
-        $display_action_past_tense = 'restarted'
-        break
-    }
-    "create-site" {
-        $display_action = 'Create Site'
-        $display_action_past_tense = 'site processed'
-        break
-    }
-    "create-app-pool" {
-        $display_action = 'Create App Pool'
-        $display_action_past_tense = 'app pool processed'
-        break
+    "site*" {
+        $action_prefix = 'site\-(?<verb>.+)'
+        $display_action = 'Web Site'
+        break;
     }
 }
 
-Write-Output "$display_action IIS"
+$action -match $action_prefix
+$verb = $Matches.verb
+$title_verb = (Get-Culture).TextInfo.ToTitleCase($verb)
+
+$display_action += " $title_verb"
+$display_action_past_tense = $display_action + $(If (!$verb.EndsWith('p')) { If (!$verb.EndsWith("e")) { "e" } else {} } else { "p" }) + "d"
+
+Write-Output "IIS $display_action"
 Write-Output "Server: $server - App Pool: $app_pool_name"
 
 $credential = [PSCredential]::new($user_id, $password)
@@ -57,7 +49,7 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
+if ($display_action.StartsWith('App Pool') -and @('start', 'stop', 'restart') | where { $_ -eq $verb }) {
     $script = {
         # Relies on WebAdministration Module being installed on the remote server
         # This should be pre-installed on Windows 2012 R2 and later
@@ -73,7 +65,7 @@ if (@('start', 'stop', 'restart') | where { $_ -eq $action }) {
         }
     }
 }
-elseif ('create-app-pool' -eq $action) {
+elseif ('app-pool-create' -eq $action) {
     $script = {
         # create app pool if it doesn't exist
         if (Get-IISAppPool -Name $Using:app_pool_name) {
@@ -89,7 +81,13 @@ elseif ('create-app-pool' -eq $action) {
         }
     }
 }
-elseif ('create-site' -eq $action) {
+elseif ('app-pool-status' -eq $action) {
+    $script = {
+        $app_pool = Get-IISAppPool -Name $Using:app_pool_name
+        $Env:OUTPUT_APP_POOL_STATUS = $app_pool
+    }
+}
+elseif ('site-create' -eq $action) {
     if (!$web_site_name -or !$web_site_path -or !$web_site_host_header) {
         "Create web site requires site name, host header and path"
         exit 1
@@ -139,4 +137,4 @@ Invoke-Command -ComputerName $server `
     -SessionOption $so `
     -ScriptBlock $script
 
-Write-Output "IIS app pool $app_pool_name $display_action_past_tense."
+Write-Output "IIS $display_action_past_tense."

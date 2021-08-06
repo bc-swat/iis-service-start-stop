@@ -28,12 +28,20 @@ inputs:
     description: 'IIS app pool name'
     required: true
   action:
-    description: 'Specify start, stop, restart, create-site, or create-app-pool as the action to perform'
+    description: |
+      Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status
+      or site-create as the action to perform
     default: 'start'
     required: true
   server-public-key:
     description: 'Path to remote server public ssl key'
     required: true
+
+outputs:
+  app-pool-status:
+    description: |
+      If the action app-pool-status is requested, this value will
+      be populated with its information.
 
 runs:
   using: 'composite'
