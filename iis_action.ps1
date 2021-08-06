@@ -84,7 +84,7 @@ elseif ('app-pool-create' -eq $action) {
 elseif ('app-pool-status' -eq $action) {
     $script = {
         $app_pool = Get-IISAppPool -Name $Using:app_pool_name
-        $Env:OUTPUT_APP_POOL_STATUS = $app_pool
+        Write-Output "::set-output name=app-pool-status::$app_pool"
     }
 }
 elseif ('site-create' -eq $action) {
@@ -131,7 +131,7 @@ elseif ('site-create' -eq $action) {
     }
 }
 
-Invoke-Command -ComputerName $server `
+$Env:OUTPUT_APP_POOL_STATUS = Invoke-Command -ComputerName $server `
     -Credential $credential `
     -UseSSL `
     -SessionOption $so `
