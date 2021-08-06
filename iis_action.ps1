@@ -84,7 +84,7 @@ elseif ('app-pool-create' -eq $action) {
 elseif ('app-pool-status' -eq $action) {
     $script = {
         $app_pool = Get-IISAppPool -Name $Using:app_pool_name
-        Write-Output "::set-output name=app-pool-status::$app_pool"
+        return "::set-output name=APP_POOL_STATUS::$app_pool"
     }
 }
 elseif ('site-create' -eq $action) {
@@ -131,10 +131,14 @@ elseif ('site-create' -eq $action) {
     }
 }
 
-$Env:OUTPUT_APP_POOL_STATUS = Invoke-Command -ComputerName $server `
+$result = Invoke-Command -ComputerName $server `
     -Credential $credential `
     -UseSSL `
     -SessionOption $so `
     -ScriptBlock $script
 
 Write-Output "IIS $display_action_past_tense."
+
+if ($result.StartsWith("::set-output")) {
+    Write-Output $result
+}
