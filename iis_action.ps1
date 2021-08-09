@@ -20,6 +20,9 @@ Param(
     [string]$cert_path
 )
 
+. $PSScriptRoot\app-pool-action.ps1
+. $PSScriptRoot\site-action.ps1
+
 switch -Regex ($action) {
     "app-pool*" {
         $action_prefix = 'app\-pool\-(?<verb>.+)'
@@ -49,86 +52,15 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-if (@('app-pool-start', 'app-pool-stop', 'app-pool-start') -contains $action) {
-    $script = {
-        # Relies on WebAdministration Module being installed on the remote server
-        # This should be pre-installed on Windows 2012 R2 and later
-        # https://docs.microsoft.com/en-us/powershell/module/?term=webadministration
-
-        if ($Using:action -eq "stop" -or $Using:action -eq "restart") {
-            Stop-WebAppPool -Name $Using:app_pool_name
-        }
-
-        if ($Using:action -eq "start" -or $Using:action -eq "restart") {
-            Start-Sleep 10
-            Start-WebAppPool -Name $Using:app_pool_name
-        }
-    }
+if ($action -like 'app-pool-*') {
+    $script = app_pool_action $app_pool_name, $verb
 }
-elseif ('app-pool-create' -eq $action) {
-    $script = {
-        # create app pool if it doesn't exist
-        if (Get-IISAppPool -Name $Using:app_pool_name) {
-            Write-Output "The App Pool $Using:app_pool_name already exists"
-        }
-        else {
-            Write-Output "Creating app pool $Using:app_pool_name"
-            $app_pool = New-WebAppPool -Name $Using:app_pool_name
-            $app_pool.autoStart = $true
-            $app_pool.managedPipelineMode = "Integrated"
-            $app_pool | Set-Item
-            Write-Output "App pool $Using:app_pool_name has been created"
-        }
-    }
-}
-elseif ('app-pool-status' -eq $action) {
-    $script = {
-        $app_pool = Get-IISAppPool -Name $Using:app_pool_name
-        return "$($app_pool.Name): $($app_pool.State)"
-    }
-}
-elseif ('site-create' -eq $action) {
+elseif ($action -eq 'site-create') {
     if (!$web_site_name -or !$web_site_path -or !$web_site_host_header) {
         "Create web site requires site name, host header and path"
         exit 1
     }
-
-    $script = {
-        # create app pool if it doesn't exist
-        if (Get-IISAppPool -Name $Using:app_pool_name) {
-            Write-Output "The App Pool $Using:app_pool_name already exists"
-        }
-        else {
-            Write-Output "Creating app pool $Using:app_pool_name"
-            $app_pool = New-WebAppPool -Name $Using:app_pool_name
-            $app_pool.autoStart = $true
-            $app_pool.managedPipelineMode = "Integrated"
-            $app_pool | Set-Item
-            Write-Output "App pool $Using:app_pool_name has been created"
-        }
-
-        # create the folder if it doesn't exist
-        if (Test-path $Using:web_site_path) {
-            Write-Output "The folder $Using:web_site_path already exists"
-        }
-        else {
-            New-Item -ItemType Directory -Path $Using:web_site_path -Force
-            Write-Output "Created folder $Using:web_site_path"
-        }
-
-        # create the site if it doesn't exist
-        if (Get-IISSite -Name $Using:web_site_name) {
-            Write-Output "The site $Using:web_site_name already exists"
-        }
-        else {
-            Write-Host "Creating IIS site $Using:web_site_name"
-            New-WebSite -Name $Using:web_site_name `
-                -HostHeader $Using:web_site_host_header `
-                -Ssl -Port 443 `
-                -PhysicalPath $Using:web_site_path `
-                -ApplicationPool $Using:app_pool_name
-        }
-    }
+    $script = site_create $web_site_name, $app_pool_name, $web_site_path, $web_site_host_header
 }
 
 $result = Invoke-Command -ComputerName $server `
