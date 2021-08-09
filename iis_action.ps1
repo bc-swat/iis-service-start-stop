@@ -49,8 +49,6 @@ $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 Write-Output "Importing remote server cert..."
 Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
 
-Write-Output "Action: $action - Verb: $verb"
-
 if (@('app-pool-start', 'app-pool-stop', 'app-pool-start') -contains $action) {
     $script = {
         # Relies on WebAdministration Module being installed on the remote server
@@ -86,7 +84,7 @@ elseif ('app-pool-create' -eq $action) {
 elseif ('app-pool-status' -eq $action) {
     $script = {
         $app_pool = Get-IISAppPool -Name $Using:app_pool_name
-        return $app_pool
+        return "$($app_pool.Name): $($app_pool.State)"
     }
 }
 elseif ('site-create' -eq $action) {
@@ -140,7 +138,12 @@ $result = Invoke-Command -ComputerName $server `
     -ScriptBlock $script
 
 if ($result) {
-    Write-Output "Results:"
-    Write-Output $result
+    switch -exact ($action) {
+        'app-pool-status' {
+            Write-Output "::set-output name=app-pool-status::$result"
+            break
+        }
+
+    }
 }
 Write-Output "IIS $display_action_past_tense."

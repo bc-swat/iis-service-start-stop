@@ -42,7 +42,7 @@ outputs:
     description: |
       If the action app-pool-status is requested, this value will
       be populated with its information.
-    value: ${{steps.action.outputs.APP_POOL_STATUS}}
+    value: '${{ steps.action.outputs.app-pool-status }}'
 
 runs:
   using: 'composite'
