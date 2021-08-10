@@ -1,6 +1,6 @@
 name: 'IIS Service Action'
 
-description: 'A GitHub action that can start, stop, or restart an On-Prem IIS server.'
+description: 'A GitHub action that can start, stop, or restart an On-Prem IIS app pool or create an IIS site.'
 
 inputs:
   server:
@@ -22,6 +22,14 @@ inputs:
     required: false
   web-site-path:
     description: 'The local directory location of the web site, i.e., "c:\inetpub\webapp"'
+    default: ''
+    required: false
+  web-site-cert-path:
+    description: 'The private cert file path for site https binding'
+    default: ''
+    required: false
+  web-site-cert-password:
+    description: 'The private cert file password'
     default: ''
     required: false
   app-pool-name:
@@ -52,13 +60,16 @@ runs:
       shell: powershell
       run: |
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
+        $secure_cert_password = ConvertTo-SecureString -String ${{ inputs.web-site-cert-password }} -AsPlainText -Force
         ${{ github.action_path }}/iis_action.ps1 `
+          -action ${{ inputs.action }} `
           -server ${{ inputs.server }} `
           -web_site_name '${{ inputs.web-site-name }}' `
           -web_site_host_header '${{ inputs.web-site-host-header }}' `
           -web_site_path '${{ inputs.web-site-path }}' `
+          -web_site_cert_path '${{ inputs.web-site-cert-path }}' `
+          -web_site_cert_password $secure_cert_password `
           -app_pool_name ${{ inputs.app-pool-name }} `
           -user_id ${{ inputs.service-account-id }} `
           -password $secure_password `
-          -action ${{ inputs.action }} `
           -cert_path ${{ inputs.server-public-key }}

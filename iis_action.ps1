@@ -1,5 +1,10 @@
 Param(
     [parameter(Mandatory = $true)]
+    [ValidateSet( 'app-pool-start', 'app-pool-stop', 'app-pool-restart', `
+            'app-pool-create', 'app-pool-status', `
+            'site-create')]
+    [string]$action,
+    [parameter(Mandatory = $true)]
     [string]$server,
     [parameter(Mandatory = $false)]
     [string]$web_site_name,
@@ -7,15 +12,16 @@ Param(
     [string]$web_site_host_header,
     [parameter(Mandatory = $false)]
     [string]$web_site_path,
+    [parameter(Mandatory = $false)]
+    [string]$web_site_cert_path,
+    [parameter(Mandatory = $false)]
+    [SecureString]$web_site_cert_password,
     [parameter(Mandatory = $true)]
     [string]$app_pool_name,
     [parameter(Mandatory = $true)]
     [string]$user_id,
     [parameter(Mandatory = $true)]
     [SecureString]$password,
-    [parameter(Mandatory = $true)]
-    [ValidateSet('app-pool-start', 'app-pool-stop', 'app-pool-restart', 'app-pool-create', 'app-pool-status', 'site-create')]
-    [string]$action,
     [parameter(Mandatory = $true)]
     [string]$cert_path
 )
@@ -60,7 +66,13 @@ elseif ($action -eq 'site-create') {
         "Create web site requires site name, host header and path"
         exit 1
     }
-    $script = site_create $web_site_name, $app_pool_name, $web_site_path, $web_site_host_header
+    $script = site_create `
+        -web_site_name $web_site_name `
+        -app_pool_name $app_pool_name `
+        -web_site_path $web_site_path `
+        -web_site_host_header $web_site_host_header `
+        -web_site_cert_path $cert_path `
+        -web_site_cert_password $web_site_cert_password
 }
 
 $result = Invoke-Command -ComputerName $server `
