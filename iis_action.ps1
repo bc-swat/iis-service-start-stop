@@ -66,13 +66,18 @@ elseif ($action -eq 'site-create') {
         "Create web site requires site name, host header and path"
         exit 1
     }
+
+    # Get the key data
+    [Byte[]]$web_site_cert_data = Get-Content -Path $web_site_cert_path -Encoding Byte
+
     $script = site_create `
         -web_site_name $web_site_name `
         -app_pool_name $app_pool_name `
         -web_site_path $web_site_path `
         -web_site_host_header $web_site_host_header `
         -web_site_cert_path $web_site_cert_path `
-        -web_site_cert_password $web_site_cert_password
+        -web_site_cert_password $web_site_cert_password `
+        -web_site_cert_data $web_site_cert_data
 }
 
 $result = Invoke-Command -ComputerName $server `

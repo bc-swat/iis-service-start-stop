@@ -5,11 +5,9 @@ function site_create {
         [string]$web_site_path,
         [string]$web_site_host_header,
         [string]$web_site_cert_path,
-        [SecureString]$web_site_cert_password
+        [SecureString]$web_site_cert_password,
+        [Byte[]]$web_site_cert_data
     )
-
-    # Get the key data
-    [Byte[]]$cert_data = Get-Content -Path $web_site_cert_path -Encoding Byte
 
     return {
         $cert_file_parts = $($Using:web_site_cert_path).Replace('/', '\').Split('\')
@@ -42,13 +40,13 @@ function site_create {
         $cert_store_path = 'Cert:\LocalMachine\Root'
 
         Write-Output "cert file path: $cert_file_path"
-        Set-Content -Path $cert_file_path -Value $cert_data -Encoding Byte
+        Set-Content -Path $cert_file_path -Value $Using:web_site_cert_data -Encoding Byte
 
         $importing_cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
         $importing_cert.Import($cert_file_path, $Using:web_site_cert_password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::DefaultKeySet)
         #$importing_cert = Get-PfxCertificate -FilePath $cert_file_path -NoPromptForPassword
 
-        $imported_cert = Get-ChildItem $cert_store_path | where { $_.FriendlyName -eq $Using:web_site_name }
+        $imported_cert = Get-ChildItem $cert_store_path | where { $_.FriendlyName -eq "$Using:web_site_name" }
         $import_cert = $true
 
         if ($imported_cert -and $imported_cert.Thumbprint -eq $importing_cert.Thumbprint) {
@@ -58,8 +56,7 @@ function site_create {
         if ($import_cert) {
             $imported_cert = Import-PfxCertificate `
                 -FilePath $cert_file_path `
-                -Password $web_site_cert_password `
-                -FriendlyName
+                -Password $web_site_cert_password
         }
 
         # create the site if it doesn't exist
