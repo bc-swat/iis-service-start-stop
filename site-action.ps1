@@ -9,78 +9,80 @@ function site_create {
     )
 
     # Get the key data
-    [Byte[]]$cert_data = Get-Content -Path $web_site_cert_path -Encoding Byte
+    # [Byte[]]$cert_data = Get-Content -Path $web_site_cert_path -Encoding Byte
     $cert_file_parts = $web_site_cert_path.Replace('/', '\').Split('\')
     $cert_file_name = $cert_file_parts[$cert_file_parts.Length - 1]
     $cert_file_path = (Join-Path -Path $web_site_path -ChildPath $cert_file_name)
 
     return {
-        # create app pool if it doesn't exist
-        if (Get-IISAppPool -Name $Using:app_pool_name) {
-            Write-Output "The App Pool $Using:app_pool_name already exists"
-        }
-        else {
-            Write-Output "Creating app pool $Using:app_pool_name"
-            $app_pool = New-WebAppPool -Name $Using:app_pool_name
-            $app_pool.autoStart = $true
-            $app_pool.managedPipelineMode = "Integrated"
-            $app_pool | Set-Item
-            Write-Output "App pool $Using:app_pool_name has been created"
-        }
+        Write-Output "Cert File Path: $cert_file_path"
 
-        # create the folder if it doesn't exist
-        if (Test-path $Using:web_site_path) {
-            Write-Output "The folder $Using:web_site_path already exists"
-        }
-        else {
-            New-Item -ItemType Directory -Path $Using:web_site_path -Force
-            Write-Output "Created folder $Using:web_site_path"
-        }
+        # # create app pool if it doesn't exist
+        # if (Get-IISAppPool -Name $Using:app_pool_name) {
+        #     Write-Output "The App Pool $Using:app_pool_name already exists"
+        # }
+        # else {
+        #     Write-Output "Creating app pool $Using:app_pool_name"
+        #     $app_pool = New-WebAppPool -Name $Using:app_pool_name
+        #     $app_pool.autoStart = $true
+        #     $app_pool.managedPipelineMode = "Integrated"
+        #     $app_pool | Set-Item
+        #     Write-Output "App pool $Using:app_pool_name has been created"
+        # }
 
-        #write out the cert
-        $cert_store_path = Cert:\LocalMachine\Root\
+        # # create the folder if it doesn't exist
+        # if (Test-path $Using:web_site_path) {
+        #     Write-Output "The folder $Using:web_site_path already exists"
+        # }
+        # else {
+        #     New-Item -ItemType Directory -Path $Using:web_site_path -Force
+        #     Write-Output "Created folder $Using:web_site_path"
+        # }
 
-        Write-Output "cert file path: $Using:cert_file_path"
+        # #write out the cert
+        # $cert_store_path = Cert:\LocalMachine\Root\
 
-        Set-Content -Path $Using:cert_file_path -Value $Using:cert_data -Encoding Byte
-        $importing_cert = Get-PfxCertificate -FilePath $Using:cert_file_path -Password $web_site_cert_password
-        $imported_cert = Get-ChildItem $cert_store_path | where { $_.FriendlyName -eq $Using:web_site_name }
-        $import_cert = $true
+        # Write-Output "cert file path: $Using:cert_file_path"
 
-        if ($imported_cert -and $imported_cert.Thumbprint -eq $importing_cert.Thumbprint) {
-            $import_cert = $false
-        }
+        # Set-Content -Path $Using:cert_file_path -Value $Using:cert_data -Encoding Byte
+        # $importing_cert = Get-PfxCertificate -FilePath $Using:cert_file_path -Password $web_site_cert_password
+        # $imported_cert = Get-ChildItem $cert_store_path | where { $_.FriendlyName -eq $Using:web_site_name }
+        # $import_cert = $true
 
-        if ($import_cert) {
-            $imported_cert = Import-PfxCertificate `
-                -FilePath $Using:cert_file_path `
-                -Password $Using:web_site_cert_password `
-                -FriendlyName
-        }
+        # if ($imported_cert -and $imported_cert.Thumbprint -eq $importing_cert.Thumbprint) {
+        #     $import_cert = $false
+        # }
 
-        # create the site if it doesn't exist
-        $iis_site = Get-IISSite -Name $Using:web_site_name
-        if ($iis_site) {
-            Write-Output "The site $Using:web_site_name already exists"
-        }
-        else {
-            Write-Output "Creating IIS site $Using:web_site_name"
-            $iis_site = New-WebSite -Name $Using:web_site_name `
-                -HostHeader $Using:web_site_host_header `
-                -Ssl -Port 443 `
-                -SslFlags 0 `
-                -PhysicalPath $Using:web_site_path `
-                -ApplicationPool $Using:app_pool_name
-        }
+        # if ($import_cert) {
+        #     $imported_cert = Import-PfxCertificate `
+        #         -FilePath $Using:cert_file_path `
+        #         -Password $Using:web_site_cert_password `
+        #         -FriendlyName
+        # }
 
-        $binding = Get-WebBinding -Name $Using:web_site_name -Protocol "https"
-        if (!$binding) {
-            Set-WebBinding `
-                -Name $Using:web_site_name `
-                -BindingInformation '443' `
-                -HostHeader $Using:web_site_host_header `
-                -Confirm $false `
-                -Port 443
-        }
+        # # create the site if it doesn't exist
+        # $iis_site = Get-IISSite -Name $Using:web_site_name
+        # if ($iis_site) {
+        #     Write-Output "The site $Using:web_site_name already exists"
+        # }
+        # else {
+        #     Write-Output "Creating IIS site $Using:web_site_name"
+        #     $iis_site = New-WebSite -Name $Using:web_site_name `
+        #         -HostHeader $Using:web_site_host_header `
+        #         -Ssl -Port 443 `
+        #         -SslFlags 0 `
+        #         -PhysicalPath $Using:web_site_path `
+        #         -ApplicationPool $Using:app_pool_name
+        # }
+
+        # $binding = Get-WebBinding -Name $Using:web_site_name -Protocol "https"
+        # if (!$binding) {
+        #     Set-WebBinding `
+        #         -Name $Using:web_site_name `
+        #         -BindingInformation '443' `
+        #         -HostHeader $Using:web_site_host_header `
+        #         -Confirm $false `
+        #         -Port 443
+        # }
     }
 }

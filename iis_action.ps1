@@ -71,7 +71,7 @@ elseif ($action -eq 'site-create') {
         -app_pool_name $app_pool_name `
         -web_site_path $web_site_path `
         -web_site_host_header $web_site_host_header `
-        -web_site_cert_path $cert_path `
+        -web_site_cert_path $web_site_cert_path `
         -web_site_cert_password $web_site_cert_password
 }
 

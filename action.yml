@@ -69,7 +69,7 @@ runs:
           -web_site_path '${{ inputs.web-site-path }}' `
           -web_site_cert_path '${{ inputs.web-site-cert-path }}' `
           -web_site_cert_password $secure_cert_password `
-          -app_pool_name ${{ inputs.app-pool-name }} `
-          -user_id ${{ inputs.service-account-id }} `
+          -app_pool_name '${{ inputs.app-pool-name }}' `
+          -user_id '${{ inputs.service-account-id }}' `
           -password $secure_password `
-          -cert_path ${{ inputs.server-public-key }}
+          -cert_path '${{ inputs.server-public-key }}'
