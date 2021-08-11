@@ -56,29 +56,29 @@ function site_create {
                 -Password $web_site_cert_password
         }
 
-        # # create the site if it doesn't exist
-        # $iis_site = Get-IISSite -Name $Using:web_site_name
-        # if ($iis_site) {
-        #     Write-Output "The site $Using:web_site_name already exists"
-        # }
-        # else {
-        #     Write-Output "Creating IIS site $Using:web_site_name"
-        #     $iis_site = New-WebSite -Name $Using:web_site_name `
-        #         -HostHeader $Using:web_site_host_header `
-        #         -Ssl -Port 443 `
-        #         -SslFlags 0 `
-        #         -PhysicalPath $Using:web_site_path `
-        #         -ApplicationPool $Using:app_pool_name
-        # }
+        # create the site if it doesn't exist
+        $iis_site = Get-IISSite -Name $Using:web_site_name
+        if ($iis_site) {
+            Write-Output "The site $Using:web_site_name already exists"
+        }
+        else {
+            Write-Output "Creating IIS site $Using:web_site_name"
+            $iis_site = New-WebSite -Name $Using:web_site_name `
+                -HostHeader $Using:web_site_host_header `
+                -Ssl -Port 443 `
+                -SslFlags 0 `
+                -PhysicalPath $Using:web_site_path `
+                -ApplicationPool $Using:app_pool_name
+        }
 
-        # $binding = Get-WebBinding -Name $Using:web_site_name -Protocol "https"
-        # if (!$binding) {
-        #     Set-WebBinding `
-        #         -Name $Using:web_site_name `
-        #         -BindingInformation '443' `
-        #         -HostHeader $Using:web_site_host_header `
-        #         -Confirm $false `
-        #         -Port 443
-        # }
+        $binding = Get-WebBinding -Name $Using:web_site_name -Protocol "https"
+        if (!$binding) {
+            Set-WebBinding `
+                -Name $Using:web_site_name `
+                -BindingInformation '443' `
+                -HostHeader $Using:web_site_host_header `
+                -Confirm $false `
+                -Port 443
+        }
     }
 }
