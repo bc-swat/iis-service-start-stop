@@ -56,7 +56,7 @@ $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
 
 Write-Output "Importing remote server cert..."
-Import-Certificate -Filepath $cert_path -CertStoreLocation "Cert:\LocalMachine\Root"
+Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\Root'
 
 if ($action -like 'app-pool-*') {
     $script = app_pool_action $app_pool_name, $verb
