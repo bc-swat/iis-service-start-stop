@@ -38,15 +38,11 @@ function site_create {
 
         #write out the cert
         $cert_store_path = 'Cert:\LocalMachine\Root'
-
-        Write-Output "cert file path: $cert_file_path"
         Set-Content -Path $cert_file_path -Value $Using:web_site_cert_data -Encoding Byte
 
         $importing_cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
         $importing_cert.Import($cert_file_path, $Using:web_site_cert_password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::DefaultKeySet)
-        #$importing_cert = Get-PfxCertificate -FilePath $cert_file_path -NoPromptForPassword
-
-        $imported_cert = Get-ChildItem $cert_store_path | where { $_.FriendlyName -eq "$Using:web_site_name" }
+        $imported_cert = Get-ChildItem $cert_store_path | where { $_.Subject -eq $importing_cert.Subject }
         $import_cert = $true
 
         if ($imported_cert -and $imported_cert.Thumbprint -eq $importing_cert.Thumbprint) {
@@ -54,7 +50,8 @@ function site_create {
         }
 
         if ($import_cert) {
-            $imported_cert = Import-PfxCertificate `
+            Import-PfxCertificate `
+                -CertStoreLocation $cert_store_path `
                 -FilePath $cert_file_path `
                 -Password $web_site_cert_password
         }
