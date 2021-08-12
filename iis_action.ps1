@@ -49,7 +49,15 @@ $verb = $Matches.verb
 $title_verb = (Get-Culture).TextInfo.ToTitleCase($verb)
 
 $display_action += " $title_verb"
-$display_action_past_tense = $display_action + $(If (!$verb.EndsWith('p')) { If (!$verb.EndsWith("e")) { "e" } else {} } else { "p" }) + "d"
+$past_tense = "ed"
+switch ($verb) {
+    "start" {}
+    "restart" { break; }
+    "stop" { $past_tense = "ped"; break; }
+    "create" { $past_tense = "d"; break; }
+    "status" { $past_tense = " returned"; break; }
+}
+$display_action_past_tense = "$display_action$past_tense"
 
 Write-Output "IIS $display_action"
 Write-Output "Server: $server - App Pool: $app_pool_name"
