@@ -42,7 +42,7 @@ inputs:
   action:
     description: |
       Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status
-      or site-create as the action to perform
+      or website-create as the action to perform
     default: 'start'
     required: true
   server-public-key:

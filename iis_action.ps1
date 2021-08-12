@@ -2,7 +2,7 @@ Param(
     [parameter(Mandatory = $true)]
     [ValidateSet( 'app-pool-start', 'app-pool-stop', 'app-pool-restart', `
             'app-pool-create', 'app-pool-status', `
-            'site-create')]
+            'website-create')]
     [string]$action,
     [parameter(Mandatory = $true)]
     [string]$server,
@@ -38,7 +38,7 @@ switch -Regex ($action) {
         break;
     }
     "site*" {
-        $action_prefix = 'site\-(?<verb>.+)'
+        $action_prefix = 'website\-(?<verb>.+)'
         $display_action = 'Website'
         break;
     }
@@ -63,7 +63,7 @@ Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\R
 if ($action -like 'app-pool-*') {
     $script = app_pool_action $app_pool_name, $verb
 }
-elseif ($action -eq 'site-create') {
+elseif ($action -eq 'website-create') {
     if (!$website_name -or !$website_path -or !$website_host_header -or !$website_cert_path -or !$website_cert_password -or !$website_cert_friendly_name) {
         "Create website requires site name, host header, website cert, website cert password, website cert friendly name, and directory path"
         exit 1
