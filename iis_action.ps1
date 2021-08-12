@@ -7,15 +7,17 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$server,
     [parameter(Mandatory = $false)]
-    [string]$web_site_name,
+    [string]$website_name,
     [parameter(Mandatory = $false)]
-    [string]$web_site_host_header,
+    [string]$website_host_header,
     [parameter(Mandatory = $false)]
-    [string]$web_site_path,
+    [string]$website_path,
     [parameter(Mandatory = $false)]
-    [string]$web_site_cert_path,
+    [string]$website_cert_path,
     [parameter(Mandatory = $false)]
-    [SecureString]$web_site_cert_password,
+    [SecureString]$website_cert_password,
+    [parameter(Mandatory = $false)]
+    [string]$website_cert_friendly_name,
     [parameter(Mandatory = $true)]
     [string]$app_pool_name,
     [parameter(Mandatory = $true)]
@@ -37,7 +39,7 @@ switch -Regex ($action) {
     }
     "site*" {
         $action_prefix = 'site\-(?<verb>.+)'
-        $display_action = 'Web Site'
+        $display_action = 'Website'
         break;
     }
 }
@@ -62,22 +64,23 @@ if ($action -like 'app-pool-*') {
     $script = app_pool_action $app_pool_name, $verb
 }
 elseif ($action -eq 'site-create') {
-    if (!$web_site_name -or !$web_site_path -or !$web_site_host_header) {
-        "Create web site requires site name, host header and path"
+    if (!$website_name -or !$website_path -or !$website_host_header -or !$website_cert_path -or !$website_cert_password -or !$website_cert_friendly_name) {
+        "Create website requires site name, host header, website cert, website cert password, website cert friendly name, and directory path"
         exit 1
     }
 
     # Get the key data
-    [Byte[]]$web_site_cert_data = Get-Content -Path $web_site_cert_path -Encoding Byte
+    [Byte[]]$website_cert_data = Get-Content -Path $website_cert_path -Encoding Byte
 
     $script = site_create `
-        -web_site_name $web_site_name `
+        -website_name $website_name `
         -app_pool_name $app_pool_name `
-        -web_site_path $web_site_path `
-        -web_site_host_header $web_site_host_header `
-        -web_site_cert_path $web_site_cert_path `
-        -web_site_cert_password $web_site_cert_password `
-        -web_site_cert_data $web_site_cert_data
+        -website_path $website_path `
+        -website_host_header $website_host_header `
+        -website_cert_path $website_cert_path `
+        -website_cert_password $website_cert_password `
+        -website_cert_friendly_name $website_cert_friendly_name `
+        -website_cert_data $website_cert_data
 }
 
 $result = Invoke-Command -ComputerName $server `

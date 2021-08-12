@@ -17,9 +17,9 @@ A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 | `server`                   | true        | The name of the target server                                                                                                     |
 | `service-account-id`       | true        | The service account name                                                                                                          |
 | `service-account-password` | true        | The service account password                                                                                                      |
-| `web-site-name`            | false       | The name of the web site                                                                                                          |
-| `web-site-host-header`     | false       | The host-header the web site should respond to                                                                                    |
-| `web-site-path`            | false       | The local directory location of the web site, i.e., "c:\inetpub\webapp"                                                           |
+| `website-name`             | false       | The name of the web site                                                                                                          |
+| `website-host-header`      | false       | The host-header the web site should respond to                                                                                    |
+| `website-path`             | false       | The local directory location of the web site, i.e., "c:\inetpub\webapp"                                                           |
 | `app-pool-name`            | true        | IIS app pool name                                                                                                                 |
 | `action`                   | true        | Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status or site-create as the action to perform |
 | `server-public-key`        | true        | Path to remote server public ssl key                                                                                              |
