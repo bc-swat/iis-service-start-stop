@@ -10,6 +10,7 @@ function site_create {
     )
 
     return {
+        $web_site_cert_store = 'cert:\LocalMachine\My'
         $cert_file_parts = $($Using:web_site_cert_path).Replace('/', '\').Split('\')
         $cert_file_name = $cert_file_parts[$cert_file_parts.Length - 1]
         $cert_file_path = (Join-Path -Path $Using:web_site_path -ChildPath $cert_file_name)
@@ -37,24 +38,14 @@ function site_create {
         }
 
         #write out the cert
-        $cert_store_path = 'Cert:\LocalMachine\Root'
         Set-Content -Path $cert_file_path -Value $Using:web_site_cert_data -Encoding Byte
 
-        $importing_cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-        $importing_cert.Import($cert_file_path, $Using:web_site_cert_password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::DefaultKeySet)
-        $imported_cert = Get-ChildItem $cert_store_path | where { $_.Subject -eq $importing_cert.Subject }
-        $import_cert = $true
-
-        if ($imported_cert -and $imported_cert.Thumbprint -eq $importing_cert.Thumbprint) {
-            $import_cert = $false
-        }
-
-        if ($import_cert) {
-            Import-PfxCertificate `
-                -CertStoreLocation $cert_store_path `
-                -FilePath $cert_file_path `
-                -Password $web_site_cert_password
-        }
+        # Always import the cert, because there's a lot of work to do thumbprint comparisons
+        # in powershell of an un-imported pfx file
+        $imported_cert = Import-PfxCertificate `
+            -CertStoreLocation $web_site_cert_store `
+            -FilePath $cert_file_path `
+            -Password $Using:web_site_cert_password
 
         # create the site if it doesn't exist
         $iis_site = Get-IISSite -Name $Using:web_site_name
@@ -65,20 +56,16 @@ function site_create {
             Write-Output "Creating IIS site $Using:web_site_name"
             $iis_site = New-WebSite -Name $Using:web_site_name `
                 -HostHeader $Using:web_site_host_header `
-                -Ssl -Port 443 `
-                -SslFlags 0 `
+                -Port 80 `
                 -PhysicalPath $Using:web_site_path `
                 -ApplicationPool $Using:app_pool_name
-        }
 
-        $binding = Get-WebBinding -Name $Using:web_site_name -Protocol "https"
-        if (!$binding) {
-            Set-WebBinding `
-                -Name $Using:web_site_name `
-                -BindingInformation '443' `
-                -HostHeader $Using:web_site_host_header `
-                -Confirm $false `
-                -Port 443
+            $cert_parts = $web_site_cert_store.Split('\')
+            $location = $cert_parts[$cert_parts.Length - 1]
+
+            $binding = Set-WebBinding -Name $Using:web_site_name `
+                -BindingInformation "443" -PropertyName "Port" -Value "443"
+            $binding.AddSslCertificate($imported_cert.GetCertHashString(), $location)
         }
     }
 }
