@@ -81,13 +81,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: IIS stop
-      uses: 'im-open/iis-service-action@v1.0.0'
+      uses: 'im-open/iis-service-action@v1.0.1'
       with:
         server: ${{ env.server }}
         service-account-id: ${{ secrets.iis_admin_user }}
         service-account-password: ${{ secrets.iis_admin_password }}
         app-pool-name: ${{ env.pool-name }}
-        action: 'stop'
+        action: 'app-pool-stop'
         server-public-key: ${{ env.cert-path }}
 
   ...
