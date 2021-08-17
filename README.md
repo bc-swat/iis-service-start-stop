@@ -1,6 +1,6 @@
 # IIS Service Action
 
-A GitHub action that can start, stop, or restart an On-Prem IIS servers.
+This action will start, stop, or restart an on premises IIS service.
 
 ## Index <!-- omit in toc -->
 
@@ -12,24 +12,17 @@ A GitHub action that can start, stop, or restart an On-Prem IIS servers.
 
 ## Inputs
 
-| Parameter                    | Is Required | Description                                                                                                                          |
-| ---------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `server`                     | true        | The name of the target server                                                                                                        |
-| `service-account-id`         | true        | The service account name                                                                                                             |
-| `service-account-password`   | true        | The service account password                                                                                                         |
-| `website-name`               | false       | The name of the web site                                                                                                             |
-| `website-host-header`        | false       | The host-header the web site should respond to                                                                                       |
-| `website-path`               | false       | The local directory location of the web site, i.e., "c:\inetpub\webapp"                                                              |
-| `website-cert-path`          | false       | The private cert file path for site https binding                                                                                    |
-| `website-cert-friendly-name` | false       | The private cert's friendly name                                                                                                     |
-| `website-cert-password`      | false       | The private cert file password                                                                                                       |
-| `app-pool-name`              | true        | IIS app pool name                                                                                                                    |
-| `action`                     | true        | Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status or website-create as the action to perform |
-| `server-public-key`          | true        | Path to remote server public ssl key                                                                                                 |
+| Parameter                  | Is Required | Description                                                                                                                          |
+| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `action`                   | true        | Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status or website-create as the action to perform |
+| `server`                   | true        | The name of the target server                                                                                                        |
+| `service-account-id`       | true        | The service account name                                                                                                             |
+| `service-account-password` | true        | The service account password                                                                                                         |
+| `server-public-key`        | true        | Path to remote server public ssl key                                                                                                 |
 
 ## Prerequisites
 
-The IIS services action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this, Windows OS GitHubs Actions Runners, `runs-on: [windows-2019]`, must be used. If the IIS server target is on a local network that is not publicly available, then specialized self hosted runners, `runs-on: [self-hosted, windows-2019]`,  will need to be used to broker commands to the server.
+The IIS service action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this, Windows OS GitHubs Actions Runners, `runs-on: [windows-2019]`, must be used. If the IIS server target is on a local network that is not publicly available, then specialized self hosted runners, `runs-on: [self-hosted, windows-2019]`,  will need to be used to broker commands to the server.
 
 Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that remote sessions can be received.
 
@@ -74,7 +67,6 @@ jobs:
    runs-on: [windows-2019]
    env:
       server: 'iis-server.domain.com'
-      pool-name: 'website-pool'
       cert-path: './server-cert'
 
    steps:
@@ -83,14 +75,12 @@ jobs:
     - name: IIS stop
       uses: 'im-open/iis-service-action@v1.0.1'
       with:
+        action: 'stop'
         server: ${{ env.server }}
         service-account-id: ${{ secrets.iis_admin_user }}
         service-account-password: ${{ secrets.iis_admin_password }}
-        app-pool-name: ${{ env.pool-name }}
-        action: 'app-pool-stop'
         server-public-key: ${{ env.cert-path }}
-
-  ...
+...
 ```
 
 ## Code of Conduct
