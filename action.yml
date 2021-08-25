@@ -30,8 +30,8 @@ runs:
       run: |
         $secure_password = ConvertTo-SecureString -String ${{ inputs.service-account-password }} -AsPlainText -Force
         ${{ github.action_path }}/iis_service_action.ps1 `
-          -action ${{ inputs.action }} `
-          -server ${{ inputs.server }} `
+          -action '${{ inputs.action }}'.ToLower() `
+          -server '${{ inputs.server }}' `
           -user_id '${{ inputs.service-account-id }}' `
           -password $secure_password `
           -cert_path '${{ inputs.server-public-key }}'

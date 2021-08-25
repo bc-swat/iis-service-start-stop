@@ -12,17 +12,19 @@ This action will start, stop, or restart an on premises IIS service.
 
 ## Inputs
 
-| Parameter                  | Is Required | Description                                                                                                                          |
-| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `action`                   | true        | Specify app-pool-start, app-pool-stop, app-pool-restart, app-pool-create, app-pool-status or website-create as the action to perform |
-| `server`                   | true        | The name of the target server                                                                                                        |
-| `service-account-id`       | true        | The service account name                                                                                                             |
-| `service-account-password` | true        | The service account password                                                                                                         |
-| `server-public-key`        | true        | Path to remote server public ssl key                                                                                                 |
+| Parameter                  | Is Required | Description                                       |
+| -------------------------- | ----------- | ------------------------------------------------- |
+| `action`                   | true        | Specify start, stop, or restart action to perform |
+|                            |
+| `server`                   | true        | The name of the target server                     |
+| `service-account-id`       | true        | The service account name                          |
+| `service-account-password` | true        | The service account password                      |
+| `server-public-key`        | true        | Path to remote server public ssl key              |
+
 
 ## Prerequisites
 
-The IIS service action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this, Windows OS GitHubs Actions Runners, `runs-on: [windows-2019]`, must be used. If the IIS server target is on a local network that is not publicly available, then specialized self hosted runners, `runs-on: [self-hosted, windows-2019]`,  will need to be used to broker commands to the server.
+The IIS service action uses Web Services for Management, [WSMan], and Windows Remote Management, [WinRM], to create remote administrative sessions. Because of this, Windows Actions Runners, `runs-on: [windows-2019]`, must be used. If the IIS server target is on a local network that is not publicly available, then specialized self-hosted runners, `runs-on: [self-hosted, windows-2019]`, will need to be used to broker commands to the server.
 
 Inbound secure WinRm network traffic (TCP port 5986) must be allowed from the GitHub Actions Runners virtual network so that remote sessions can be received.
 
@@ -63,7 +65,7 @@ Prep the remote IIS server to accept WinRM management calls.  In general the IIS
 ...
 
 jobs:
-  stop-iis:
+  stop-iis-service:
    runs-on: [windows-2019]
    env:
       server: 'iis-server.domain.com'
