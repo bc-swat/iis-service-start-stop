@@ -7,9 +7,7 @@ Param(
     [parameter(Mandatory = $true)]
     [string]$user_id,
     [parameter(Mandatory = $true)]
-    [SecureString]$password,
-    [parameter(Mandatory = $false)]
-    [string]$cert_path
+    [SecureString]$password
 )
 
 $display_action = 'IIS'
@@ -28,11 +26,6 @@ Write-Output $display_action
 
 $credential = [PSCredential]::new($user_id, $password)
 $so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
-
-if ($cert_path.Length -gt 0) {
-    Write-Output "Importing remote server cert..."
-    Import-Certificate -Filepath $cert_path -CertStoreLocation 'Cert:\LocalMachine\Root'
-}
 
 $script = {
     # Relies on WebAdministration Module being installed on the remote server
