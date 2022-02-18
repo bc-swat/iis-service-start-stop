@@ -8,7 +8,7 @@ This action will start, stop, or restart an on premises IIS service.
 - [Prerequisites](#prerequisites)
 - [Example](#example)
 - [Contributing](#contributing)
-  + [Incrementing the Version](#incrementing-the-version)
+  - [Incrementing the Version](#incrementing-the-version)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
@@ -17,12 +17,9 @@ This action will start, stop, or restart an on premises IIS service.
 | Parameter                  | Is Required | Description                                       |
 | -------------------------- | ----------- | ------------------------------------------------- |
 | `action`                   | true        | Specify start, stop, or restart action to perform |
-|                            |
 | `server`                   | true        | The name of the target server                     |
 | `service-account-id`       | true        | The service account name                          |
 | `service-account-password` | true        | The service account password                      |
-| `server-public-key`        | true        | Path to remote server public ssl key              |
-
 
 ## Prerequisites
 
@@ -77,13 +74,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: IIS stop
-      uses: 'im-open/iis-service-action@v1.0.2'
+      uses: 'im-open/iis-service-action@v2.0.0'
       with:
         action: 'stop'
         server: ${{ env.server }}
         service-account-id: ${{ secrets.iis_admin_user }}
         service-account-password: ${{ secrets.iis_admin_password }}
-        server-public-key: ${{ env.cert-path }}
 ...
 ```
 
