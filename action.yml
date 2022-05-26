@@ -25,7 +25,7 @@ runs:
       id: action
       shell: powershell
       run: |
-        $secure_password = ConvertTo-SecureString -String "${{ inputs.service-account-password }}" -AsPlainText -Force
+        $secure_password = ConvertTo-SecureString -String '${{ inputs.service-account-password }}' -AsPlainText -Force
         ${{ github.action_path }}/iis_service_action.ps1 `
           -action '${{ inputs.action }}'.ToLower() `
           -server '${{ inputs.server }}' `
