@@ -74,7 +74,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: IIS stop
-      uses: 'im-open/iis-service-action@v2.0.0'
+      uses: 'im-open/iis-service-action@v1.0.5'
       with:
         action: 'stop'
         server: ${{ env.server }}
