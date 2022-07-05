@@ -1,6 +1,6 @@
 name: 'IIS Service Action'
 
-description: 'This action will start, stop, or restart an on premises IIS service.'
+description: 'This action will start, stop, or restart a target Windows server running the IIS service.'
 
 inputs:
   action:
