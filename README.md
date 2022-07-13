@@ -1,6 +1,6 @@
 # IIS Service Action
 
-This action will start, stop, or restart an on premises IIS service.
+This action will start, stop, or restart a target Windows server running the IIS service.
 
 ## Index <!-- omit in toc -->
 
@@ -74,7 +74,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: IIS stop
-      uses: 'im-open/iis-service-action@v1.0.5'
+      uses: 'im-open/iis-service-action@v1.0.6'
       with:
         action: 'stop'
         server: ${{ env.server }}
