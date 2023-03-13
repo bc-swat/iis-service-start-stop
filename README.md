@@ -74,7 +74,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: IIS stop
-      uses: 'im-open/iis-service-action@v1.0.6'
+        # You may also reference the major or major.minor version
+        uses: im-open/iis-service-action@v1.0.7
         with:
         action: 'stop'
           server: ${{ env.server }}
@@ -119,6 +120,5 @@ This project has adopted the [im-open's Code of Conduct](https://github.com/im-o
 Copyright &copy; 2021, Extend Health, LLC. Code released under the [MIT license](LICENSE).
 
 [git-version-lite]: https://github.com/im-open/git-version-lite
-[powershell remoting over https with a self-signed ssl certificate]: https://4sysops.com/archives/powershell-remoting-over-https-with-a-self-signed-ssl-certificate
 [wsman]: https://docs.microsoft.com/en-us/windows/win32/winrm/ws-management-protocol
 [winrm]: https://docs.microsoft.com/en-us/windows/win32/winrm/about-windows-remote-management
